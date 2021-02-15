@@ -8,7 +8,6 @@ import threading as thr
 import multiprocessing as mp
 import os
 from yaspin import yaspin
-# import deepcut
 
 
 def pantip_extract():
@@ -35,16 +34,16 @@ def get_data():
             data = pantip_extract()
             pantip_data.extend(data)
 
-            data_clean = []
+            remove_dup = []
             for i in range(len(pantip_data)):
                 if pantip_data[i] not in pantip_data[i + 1:]:
-                    data_clean.append(pantip_data[i])
+                    remove_dup.append(pantip_data[i])
 
             data_frame = pd.DataFrame(
-                data_clean, columns=['title', 'description', 'link', 'published'])
+                remove_dup, columns=['title', 'description', 'link', 'published'])
             print("data length : ", len(data_frame))
             path = os.getcwd()
-            data_frame.to_csv(path + '/export_dataframe.csv', header=True)
+            data_frame.to_csv(path + '/raw_dataframe.csv', header=True)
             time.sleep(60)
 
 
