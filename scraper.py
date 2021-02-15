@@ -11,10 +11,10 @@ from yaspin import yaspin
 path = os.getcwd()
 
 
-def pantip_extract(keyword=''):
+def pantip_extract(keywords=''):
     feed = feedparser.parse('https://pantip.com/forum/feed')
     new_items = []
-    if len(keyword) == 0:
+    if len(keywords) == 0:
         for item in feed.entries:
             _item = {}
 
@@ -26,19 +26,29 @@ def pantip_extract(keyword=''):
             new_items.append(_item)
     else:
         for item in feed.entries:
+            keywords_match = False
             _item = {}
             _item['title'] = item.title
             _item['description'] = item.summary
             _item['link'] = item.link
             _item['published'] = item.published
 
+            for keyword in keywords:
+                title = item.title
+                find = title.find(keyword)
+                if find >= 0:
+                    keywords_match = True
+
+            if keywords_match:
+                new_items.append(_item)
+
             new_items.append(_item)
 
     return new_items
 
 
-def get_data(keyword=''):
-    print(keyword)
+def get_data(keywords=''):
+    # print(keywords)
     try:
         data_frame = pd.read_csv(path + '/raw_dataframe.csv')
         data = data_frame.to_dict('records')
@@ -54,7 +64,7 @@ def get_data(keyword=''):
         data_list = []
     with yaspin(text='scraping..........'):
         while True:
-            data = pantip_extract()
+            data = pantip_extract(keywords)
             data_list.extend(data)
 
             remove_dup = [i for n, i in enumerate(
@@ -68,4 +78,4 @@ def get_data(keyword=''):
             time.sleep(60)
 
 
-get_data()
+get_data(['อนิเมะ'])
