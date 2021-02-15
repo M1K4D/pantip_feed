@@ -11,47 +11,28 @@ from yaspin import yaspin
 # import deepcut
 
 
-def pantip_extract(keywords):
+def pantip_extract():
     feed = feedparser.parse('https://pantip.com/forum/feed')
     new_items = []
-    if len(keywords) == 0:
-        for item in feed.entries:
-            _item = {}
-            _item['title'] = item.title
-            _item['description'] = item.summary
-            _item['link'] = item.link
-            _item['published'] = item.published
+    for item in feed.entries:
+        _item = {}
+        _item['title'] = item.title
+        _item['description'] = item.summary
+        _item['link'] = item.link
+        _item['published'] = item.published
 
-            new_items.append(_item)
-    else:
-        for item in feed.entries:
-            keywords_match = False
-            _item = {}
-            _item['title'] = item.title
-            _item['description'] = item.summary
-            _item['link'] = item.link
-            _item['published'] = item.published
-
-            for keyword in keywords:
-                title = item.title
-                find = title.find(keyword)
-                if find >= 0:
-                    keywords_match = True
-
-            if keywords_match:
-                new_items.append(_item)
-
+        new_items.append(_item)
     return new_items
 
 
 pantip_data = []
 
 
-def get_data(keywords):
+def get_data():
     pantip_data = []
     with yaspin(text='scraping..........'):
         while True:
-            data = pantip_extract(keywords)
+            data = pantip_extract()
             pantip_data.extend(data)
 
             data_clean = []
@@ -64,19 +45,7 @@ def get_data(keywords):
             print("data length : ", len(data_frame))
             path = os.getcwd()
             data_frame.to_csv(path + '/export_dataframe.csv', header=True)
-            time.sleep(180)
+            time.sleep(60)
 
 
-# get_data()
-def main():
-    search = input('input your keywords : ')
-    clean = search.split(' ')
-    print(clean)
-    if len(clean) == 0:
-        words = ''
-    else:
-        words = clean
-    get_data(words)
-
-
-main()
+get_data()
