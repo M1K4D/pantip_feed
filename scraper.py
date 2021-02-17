@@ -12,10 +12,13 @@ import ast
 path = os.getcwd()
 
 
-def pantip_extract(keywords=''):
+def pantip_extract(keywords='', rawdata=[]):
     print(keywords)
     feed = feedparser.parse('https://pantip.com/forum/feed')
     new_items = []
+    links = []
+    for link in rawdata:
+        links.append(link['link'])
     if len(keywords) == 0:
         for item in feed.entries:
             _item = {}
@@ -24,8 +27,8 @@ def pantip_extract(keywords=''):
             _item['description'] = item.summary
             _item['link'] = item.link
             _item['published'] = item.published
-
-            new_items.append(_item)
+            if item.link not in links:
+                new_items.append(_item)
     else:
         for item in feed.entries:
             keywords_match = False
@@ -44,7 +47,7 @@ def pantip_extract(keywords=''):
                 if find >= 0 or des >= 0:
                     keywords_match = True
 
-            if keywords_match:
+            if keywords_match and item.link not in links:
                 new_items.append(_item)
 
     return new_items
@@ -53,7 +56,7 @@ def pantip_extract(keywords=''):
 def get_data(keywords=''):
     try:
         data_frame = pd.read_csv(
-            '/home/m1k4/project/nodejs_search/raw_dataframe2.csv')
+            path + '/raw_dataframe2.csv')
         data = data_frame.to_dict('records')
         data_list = []
         for list in data:
@@ -67,23 +70,27 @@ def get_data(keywords=''):
         data_list = []
     with yaspin(text='scraping..........'):
         while True:
-            data = pantip_extract(keywords)
+            data = pantip_extract(keywords=keywords, rawdata=data_list)
             data_list.extend(data)
 
-            remove_dup = []
-            for i in range(len(data_list)):
-                if data_list[i] not in data_list[i + 1:]:
-                    remove_dup.append(data_list[i])
+            # links = []
+            # for link in data_list:
+            #     links.append(link['link'])
+
+            # remove_dup = []
+            # for i in range(len(data_list)):
+            #     if data_list[i]['link'] not in links[i + 1:]:
+            #         remove_dup.append(data_list[i])
 
             data_frame = pd.DataFrame(
-                remove_dup, columns=['title', 'description', 'link', 'published'])
-            print("data length : ", len(remove_dup))
+                data_list, columns=['title', 'description', 'link', 'published'])
+            print("data length : ", len(data_list))
 
             data_frame.to_csv(
                 '/home/m1k4/project/nodejs_search/raw_dataframe2.csv', header=True)
             data_frame.to_csv(
                 path + '/raw_dataframe2.csv', header=True)
-            time.sleep(60)
+            time.sleep(200)
 
 
 get_data(['การ์ตูน', 'อนิเมะ', 'เพลง', 'หุ้น'])
