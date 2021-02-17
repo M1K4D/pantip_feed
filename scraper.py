@@ -4,11 +4,8 @@ import requests
 import feedparser
 import pandas as pd
 import time
-import threading as thr
-import multiprocessing as mp
 import os
 from yaspin import yaspin
-import ast
 path = os.getcwd()
 
 
@@ -56,7 +53,7 @@ def pantip_extract(keywords='', rawdata=[]):
 def get_data(keywords=''):
     try:
         data_frame = pd.read_csv(
-            path + '/raw_dataframe2.csv')
+            path + '/raw_dataframe.csv')
         data = data_frame.to_dict('records')
         data_list = []
         for list in data:
@@ -73,24 +70,24 @@ def get_data(keywords=''):
             data = pantip_extract(keywords=keywords, rawdata=data_list)
             data_list.extend(data)
 
-            # links = []
-            # for link in data_list:
-            #     links.append(link['link'])
+            links = []
+            for link in data_list:
+                links.append(link['link'])
 
-            # remove_dup = []
-            # for i in range(len(data_list)):
-            #     if data_list[i]['link'] not in links[i + 1:]:
-            #         remove_dup.append(data_list[i])
+            remove_dup = []
+            for i in range(len(data_list)):
+                if data_list[i]['link'] not in links[i + 1:]:
+                    remove_dup.append(data_list[i])
 
             data_frame = pd.DataFrame(
                 data_list, columns=['title', 'description', 'link', 'published'])
             print("data length : ", len(data_list))
 
             data_frame.to_csv(
-                '/home/m1k4/project/nodejs_search/raw_dataframe2.csv', header=True)
+                '/home/m1k4/project/nodejs_search/raw_dataframe.csv', header=True)
             data_frame.to_csv(
-                path + '/raw_dataframe2.csv', header=True)
+                path + '/raw_dataframe.csv', header=True)
             time.sleep(200)
 
 
-get_data(['การ์ตูน', 'อนิเมะ', 'เพลง', 'หุ้น'])
+get_data(['การ์ตูน', 'อนิเมะ', 'เพลง', 'หุ้น', 'มังงะ'])
