@@ -1,6 +1,4 @@
 from typing import Text
-from bs4 import BeautifulSoup
-import requests
 import feedparser
 import pandas as pd
 import time
